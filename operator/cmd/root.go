@@ -187,7 +187,7 @@ var (
 		}),
 
 		api.HealthHandlerCell(
-			kvstoreEnabled,
+			operatorOption.Config.IsKVstoreEnabled,
 			isLeader.Load,
 		),
 		api.MetricsHandlerCell,
@@ -481,18 +481,6 @@ func runOperator(slog *slog.Logger, lc *LeaderLifecycle, clientset k8sClient.Cli
 	})
 }
 
-func kvstoreEnabled() bool {
-	if option.Config.KVStore == "" {
-		return false
-	}
-
-	return option.Config.IdentityAllocationMode == option.IdentityAllocationModeKVstore ||
-		option.Config.IdentityAllocationMode == option.IdentityAllocationModeDoubleWriteReadCRD ||
-		option.Config.IdentityAllocationMode == option.IdentityAllocationModeDoubleWriteReadKVstore ||
-		operatorOption.Config.SyncK8sServices ||
-		operatorOption.Config.SyncK8sNodes
-}
-
 var legacyCell = cell.Module(
 	"legacy-cell",
 	"Cilium operator legacy cell",
@@ -576,12 +564,8 @@ func (legacy *legacyOnLeader) onStart(_ cell.HookContext) error {
 	log.WithField(logfields.Mode, option.Config.IPAM).Info("Initializing IPAM")
 	watcherLogger := legacy.logger.With(logfields.LogSubsys, "watchers")
 
-	switch ipamMode := option.Config.IPAM; ipamMode {
-	case ipamOption.IPAMAzure,
-		ipamOption.IPAMENI,
-		ipamOption.IPAMClusterPool,
-		ipamOption.IPAMMultiPool,
-		ipamOption.IPAMAlibabaCloud:
+	ipamMode := option.Config.IPAM
+	if option.Config.IsNodeManagerEnabled() {
 		alloc, providerBuiltin := allocatorProviders[ipamMode]
 		if !providerBuiltin {
 			log.Fatalf("%s allocator is not supported by this version of %s", ipamMode, binaryName)
@@ -606,7 +590,7 @@ func (legacy *legacyOnLeader) onStart(_ cell.HookContext) error {
 		nodeManager = nm
 	}
 
-	if kvstoreEnabled() {
+	if operatorOption.Config.IsKVstoreEnabled() {
 		var goopts *kvstore.ExtraOptions
 		scopedLog := log.WithFields(logrus.Fields{
 			"kvstore": option.Config.KVStore,
