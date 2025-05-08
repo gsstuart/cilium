@@ -104,6 +104,10 @@ type EgressCommonRule struct {
 	// +kubebuilder:validation:Optional
 	ToNodes []EndpointSelector `json:"toNodes,omitempty"`
 
+	// Log is a freetext logging string that is used to enrich Hubble flows when this
+	// policy rule matched.
+	Log string `json:"log,omitempty"`
+
 	// TODO: Move this to the policy package
 	// (https://github.com/cilium/cilium/issues/8353)
 	aggregatedSelectors EndpointSelectorSlice `json:"-"`

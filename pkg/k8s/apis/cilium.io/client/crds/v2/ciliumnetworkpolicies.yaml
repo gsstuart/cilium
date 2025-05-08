@@ -183,6 +183,11 @@ spec:
                             type: array
                         type: object
                       type: array
+                    log:
+                      description: |-
+                        Log is a freetext logging string that is used to enrich Hubble flows when this
+                        policy rule matched.
+                      type: string
                     toCIDR:
                       description: |-
                         ToCIDR is a list of IP blocks which the endpoint subject to the rule
@@ -1300,6 +1305,11 @@ spec:
                             type: array
                         type: object
                       type: array
+                    log:
+                      description: |-
+                        Log is a freetext logging string that is used to enrich Hubble flows when this
+                        policy rule matched.
+                      type: string
                     toCIDR:
                       description: |-
                         ToCIDR is a list of IP blocks which the endpoint subject to the rule
@@ -2416,6 +2426,11 @@ spec:
                             type: array
                         type: object
                       type: array
+                    log:
+                      description: |-
+                        Log is a freetext logging string that is used to enrich Hubble flows when this
+                        policy rule matched.
+                      type: string
                     toPorts:
                       description: |-
                         ToPorts is a list of destination ports identified by port number and
@@ -3388,6 +3403,11 @@ spec:
                             type: array
                         type: object
                       type: array
+                    log:
+                      description: |-
+                        Log is a freetext logging string that is used to enrich Hubble flows when this
+                        policy rule matched.
+                      type: string
                     toPorts:
                       description: |-
                         ToPorts is a list of destination ports identified by port number and
@@ -3670,6 +3690,11 @@ spec:
                               type: array
                           type: object
                         type: array
+                      log:
+                        description: |-
+                          Log is a freetext logging string that is used to enrich Hubble flows when this
+                          policy rule matched.
+                        type: string
                       toCIDR:
                         description: |-
                           ToCIDR is a list of IP blocks which the endpoint subject to the rule
@@ -4788,6 +4813,11 @@ spec:
                               type: array
                           type: object
                         type: array
+                      log:
+                        description: |-
+                          Log is a freetext logging string that is used to enrich Hubble flows when this
+                          policy rule matched.
+                        type: string
                       toCIDR:
                         description: |-
                           ToCIDR is a list of IP blocks which the endpoint subject to the rule
@@ -5905,6 +5935,11 @@ spec:
                               type: array
                           type: object
                         type: array
+                      log:
+                        description: |-
+                          Log is a freetext logging string that is used to enrich Hubble flows when this
+                          policy rule matched.
+                        type: string
                       toPorts:
                         description: |-
                           ToPorts is a list of destination ports identified by port number and
@@ -6878,6 +6913,11 @@ spec:
                               type: array
                           type: object
                         type: array
+                      log:
+                        description: |-
+                          Log is a freetext logging string that is used to enrich Hubble flows when this
+                          policy rule matched.
+                        type: string
                       toPorts:
                         description: |-
                           ToPorts is a list of destination ports identified by port number and

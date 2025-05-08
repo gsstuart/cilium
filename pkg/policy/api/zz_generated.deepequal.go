@@ -315,6 +315,9 @@ func (in *EgressCommonRule) deepEqual(other *EgressCommonRule) bool {
 		}
 	}
 
+	if in.Log != other.Log {
+		return false
+	}
 	if ((in.aggregatedSelectors != nil) && (other.aggregatedSelectors != nil)) || ((in.aggregatedSelectors == nil) != (other.aggregatedSelectors == nil)) {
 		in, other := &in.aggregatedSelectors, &other.aggregatedSelectors
 		if other == nil || !in.DeepEqual(other) {
@@ -726,6 +729,9 @@ func (in *IngressCommonRule) deepEqual(other *IngressCommonRule) bool {
 		}
 	}
 
+	if in.Log != other.Log {
+		return false
+	}
 	if ((in.aggregatedSelectors != nil) && (other.aggregatedSelectors != nil)) || ((in.aggregatedSelectors == nil) != (other.aggregatedSelectors == nil)) {
 		in, other := &in.aggregatedSelectors, &other.aggregatedSelectors
 		if other == nil || !in.DeepEqual(other) {
