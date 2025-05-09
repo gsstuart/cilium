@@ -612,6 +612,7 @@ that happened before the events were captured by Hubble.
 | labels | [string](#string) | repeated |  |
 | revision | [uint64](#uint64) |  |  |
 | kind | [string](#string) |  |  |
+| log | [string](#string) |  |  |
 
 
 

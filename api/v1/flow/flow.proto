@@ -199,7 +199,6 @@ enum TraceObservationPoint {
     // TO_CRYPTO indicates network packets are transmitted towards the crypto
     // process for encryption.
     TO_CRYPTO = 13;
-    
 }
 
 enum TraceReason {
@@ -481,11 +480,12 @@ enum DebugCapturePoint {
 }
 
 message Policy {
-	string name = 1;
-	string namespace = 2;
-	repeated string labels = 3;
-	uint64 revision = 4;
-	string kind = 5;
+    string name = 1;
+    string namespace = 2;
+    repeated string labels = 3;
+    uint64 revision = 4;
+    string kind = 5;
+    string log = 6;
 }
 
 // EventTypeFilter is a filter describing a particular event type.

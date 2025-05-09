@@ -2857,6 +2857,7 @@ type Policy struct {
 	Labels        []string               `protobuf:"bytes,3,rep,name=labels,proto3" json:"labels,omitempty"`
 	Revision      uint64                 `protobuf:"varint,4,opt,name=revision,proto3" json:"revision,omitempty"`
 	Kind          string                 `protobuf:"bytes,5,opt,name=kind,proto3" json:"kind,omitempty"`
+	Log           string                 `protobuf:"bytes,6,opt,name=log,proto3" json:"log,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2922,6 +2923,13 @@ func (x *Policy) GetRevision() uint64 {
 func (x *Policy) GetKind() string {
 	if x != nil {
 		return x.Kind
+	}
+	return ""
+}
+
+func (x *Policy) GetLog() string {
+	if x != nil {
+		return x.Log
 	}
 	return ""
 }
@@ -5020,13 +5028,14 @@ const file_flow_flow_proto_rawDesc = "" +
 	"\x04code\x18\x02 \x01(\rR\x04code\"0\n" +
 	"\x06ICMPv6\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\rR\x04type\x12\x12\n" +
-	"\x04code\x18\x02 \x01(\rR\x04code\"\x82\x01\n" +
+	"\x04code\x18\x02 \x01(\rR\x04code\"\x94\x01\n" +
 	"\x06Policy\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
 	"\tnamespace\x18\x02 \x01(\tR\tnamespace\x12\x16\n" +
 	"\x06labels\x18\x03 \x03(\tR\x06labels\x12\x1a\n" +
 	"\brevision\x18\x04 \x01(\x04R\brevision\x12\x12\n" +
-	"\x04kind\x18\x05 \x01(\tR\x04kind\"f\n" +
+	"\x04kind\x18\x05 \x01(\tR\x04kind\x12\x10\n" +
+	"\x03log\x18\x06 \x01(\tR\x03log\"f\n" +
 	"\x0fEventTypeFilter\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\x05R\x04type\x12$\n" +
 	"\x0ematch_sub_type\x18\x02 \x01(\bR\fmatchSubType\x12\x19\n" +
