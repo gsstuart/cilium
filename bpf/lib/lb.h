@@ -17,7 +17,6 @@
 #include "drop.h"
 #endif
 
-#ifdef ENABLE_IPV6
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, struct skip_lb6_key);
@@ -27,6 +26,7 @@ struct {
 	__uint(map_flags, BPF_F_NO_PREALLOC);
 } cilium_skip_lb6 __section_maps_btf;
 
+#ifdef ENABLE_IPV6
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, __u16);
@@ -106,7 +106,6 @@ struct {
 #endif /* LB_SELECTION == LB_SELECTION_MAGLEV */
 #endif /* ENABLE_IPV6 */
 
-#ifdef ENABLE_IPV4
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, struct skip_lb4_key);
@@ -116,6 +115,7 @@ struct {
 	__uint(map_flags, BPF_F_NO_PREALLOC);
 } cilium_skip_lb4 __section_maps_btf;
 
+#ifdef ENABLE_IPV4
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, __u16);
