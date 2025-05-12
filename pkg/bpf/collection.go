@@ -274,6 +274,10 @@ type CollectionOptions struct {
 	// Maps to be renamed during loading. Key is the key in CollectionSpec.Maps,
 	// value is the new name.
 	MapRenames map[string]string
+
+	// If after loading a Collection, we detect that it includes maps that did
+	// not end up being used, we will throw an error instead of logging a warning.
+	ErrorOnUnusedMaps bool
 }
 
 // LoadCollection loads the given spec into the kernel with the specified opts.
@@ -353,7 +357,11 @@ func LoadCollection(logger *slog.Logger, spec *ebpf.CollectionSpec, opts *Collec
 
 	_, unusedMaps, err := getUnusedMaps(coll)
 	if err != nil {
-		return nil, nil, fmt.Errorf("getUnusedMaps: %w", err)
+		if opts.ErrorOnUnusedMaps {
+			return nil, nil, fmt.Errorf("getUnusedMaps: %w", err)
+		} else {
+			logger.Warn("Error while checking for unused maps", logfields.Error, err)
+		}
 	}
 	// Check if any maps were not removed by our dead code elimination logic.
 	for _, m := range unusedMaps {
@@ -362,8 +370,12 @@ func LoadCollection(logger *slog.Logger, spec *ebpf.CollectionSpec, opts *Collec
 			continue
 		}
 
-		return nil, nil, fmt.Errorf("unused maps found: %v, these were not removed by our dead code elimination logic, "+
-			"yet turn out to be unused after kernel verification", unusedMaps)
+		if opts.ErrorOnUnusedMaps {
+			return nil, nil, fmt.Errorf("unused maps found: %v, these were not removed by our dead code elimination logic, "+
+				"yet turn out to be unused after kernel verification", unusedMaps)
+		} else {
+			logger.Warn("Unused maps found", logfields.BPFMapName, unusedMaps)
+		}
 	}
 
 	// Collect Maps that need their bpffs pins replaced. Pull out Map objects
