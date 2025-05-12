@@ -76,8 +76,14 @@ func newActiveConnectionTrackingMap(in struct {
 	defines.NodeOut
 }, err error) {
 	if !in.Conf.EnableActiveConnectionTracking {
+		// Even when disabled, provide the node defines so that we can compile.
+		out.NodeDefines = map[string]string{
+			"ENABLE_ACTIVE_CONNECTION_TRACKING": "1",
+			"CILIUM_LB_ACT_MAP_MAX_ENTRIES":     "1",
+		}
 		return
 	}
+
 	svcSize := in.LBConfig.LBServiceMapEntries
 	zoneSize := len(option.Config.FixedZoneMapping)
 	size := svcSize * zoneSize
