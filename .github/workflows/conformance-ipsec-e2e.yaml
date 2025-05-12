@@ -211,6 +211,9 @@ jobs:
           if [ "${{ matrix.ipv6 }}" == "false" ]; then
             IP_FAM="ipv4"
           fi
+          if [ "${{ matrix.ipv4 }}" == "false" ]; then
+            IP_FAM="ipv6"
+          fi
           echo params="--xdp --secondary-network \"\" 3 \"\" \"\" ${{ matrix.kube-proxy }} $IP_FAM" >> $GITHUB_OUTPUT
 
       - name: Provision K8s on LVH VM
