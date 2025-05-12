@@ -164,8 +164,6 @@ struct {
 };
 #endif
 
-#if defined(ENABLE_IPV4) && defined(ENABLE_NODEPORT)
-#ifdef ENABLE_IP_MASQ_AGENT_IPV4
 struct {
 	__uint(type, BPF_MAP_TYPE_LPM_TRIE);
 	__type(key, struct lpm_v4_key);
@@ -174,8 +172,8 @@ struct {
 	__uint(max_entries, 16384);
 	__uint(map_flags, BPF_F_NO_PREALLOC);
 } cilium_ipmasq_v4 __section_maps_btf;
-#endif
 
+#if defined(ENABLE_IPV4) && defined(ENABLE_NODEPORT)
 static __always_inline void *
 get_cluster_snat_map_v4(__u32 cluster_id __maybe_unused)
 {
@@ -1205,8 +1203,6 @@ struct {
 	});
 } cilium_per_cluster_snat_v6_external __section_maps_btf;
 
-#if defined(ENABLE_IPV6) && defined(ENABLE_NODEPORT)
-#ifdef ENABLE_IP_MASQ_AGENT_IPV6
 struct {
 	__uint(type, BPF_MAP_TYPE_LPM_TRIE);
 	__type(key, struct lpm_v6_key);
@@ -1215,8 +1211,8 @@ struct {
 	__uint(max_entries, 16384);
 	__uint(map_flags, BPF_F_NO_PREALLOC);
 } cilium_ipmasq_v6 __section_maps_btf;
-#endif
 
+#if defined(ENABLE_IPV6) && defined(ENABLE_NODEPORT)
 static __always_inline void *
 get_cluster_snat_map_v6(__u32 cluster_id __maybe_unused)
 {
