@@ -454,15 +454,12 @@ func (h *HeaderfileWriter) WriteNodeConfig(w io.Writer, cfg *datapath.LocalNodeC
 		}
 		if option.Config.EnableSVCSourceRangeCheck {
 			cDefinesMap["ENABLE_SRC_RANGE_CHECK"] = "1"
-			if option.Config.EnableIPv4 {
-				cDefinesMap["LB4_SRC_RANGE_MAP_SIZE"] =
-					fmt.Sprintf("%d", lbmap.SourceRange4Map.MaxEntries())
-			}
-			if option.Config.EnableIPv6 {
-				cDefinesMap["LB6_SRC_RANGE_MAP_SIZE"] =
-					fmt.Sprintf("%d", lbmap.SourceRange6Map.MaxEntries())
-			}
 		}
+
+		cDefinesMap["LB4_SRC_RANGE_MAP_SIZE"] =
+			fmt.Sprintf("%d", lbmap.SourceRange4Map.MaxEntries())
+		cDefinesMap["LB6_SRC_RANGE_MAP_SIZE"] =
+			fmt.Sprintf("%d", lbmap.SourceRange6Map.MaxEntries())
 
 		cDefinesMap["NODEPORT_PORT_MIN"] = fmt.Sprintf("%d", cfg.LBConfig.NodePortMin)
 		cDefinesMap["NODEPORT_PORT_MAX"] = fmt.Sprintf("%d", cfg.LBConfig.NodePortMax)
