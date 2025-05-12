@@ -10,6 +10,11 @@ runs:
     - name: Rotate IPsec Key
       shell: bash
       run: |
+        kubectl get nodes
+        kubectl describe nodes
+        kubectl -n kube-system exec ds/cilium -- cilium encrypt status
+        kubectl -n kube-system exec ds/cilium -- cilium config -a
+
         echo "Updating IPsec secret"
         cilium encrypt rotate-key --auth-algo ${{ inputs.key-algo }}
 
@@ -31,6 +36,7 @@ runs:
           if [[ $keys_in_use == $exp_nb_keys ]]; then
             break
           fi
+          kubectl -n kube-system exec ds/cilium -- cilium encrypt status
           echo "Waiting until key rotation starts (seeing $keys_in_use keys, expected $exp_nb_keys)"
           sleep 10s
         done
