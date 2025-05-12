@@ -1673,4 +1673,12 @@ const (
 	EventEnqueueWaitTime = "eventEnqueueWaitTime"
 
 	EventConsumeOffQueueWaitTime = "eventConsumeOffQueueWaitTime"
+
+	Subnets = "subnets"
+
+	Ratio = "ratio"
+
+	OldName = "oldName"
+
+	NewName = "newName"
 )
