@@ -44,7 +44,6 @@ struct {
 	__uint(map_flags, CONDITIONAL_PREALLOC);
 } cilium_lb6_services_v2 __section_maps_btf;
 
-#ifdef ENABLE_IPV6
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, __u32);
@@ -54,6 +53,7 @@ struct {
 	__uint(map_flags, CONDITIONAL_PREALLOC);
 } cilium_lb6_backends_v3 __section_maps_btf;
 
+#ifdef ENABLE_IPV6
 #ifdef ENABLE_SESSION_AFFINITY
 struct {
 	__uint(type, BPF_MAP_TYPE_LRU_HASH);
@@ -133,7 +133,6 @@ struct {
 	__uint(map_flags, CONDITIONAL_PREALLOC);
 } cilium_lb4_services_v2 __section_maps_btf;
 
-#ifdef ENABLE_IPV4
 struct {
 	__uint(type, BPF_MAP_TYPE_HASH);
 	__type(key, __u32);
@@ -143,6 +142,7 @@ struct {
 	__uint(map_flags, CONDITIONAL_PREALLOC);
 } cilium_lb4_backends_v3 __section_maps_btf;
 
+#ifdef ENABLE_IPV4
 #ifdef ENABLE_SESSION_AFFINITY
 struct {
 	__uint(type, BPF_MAP_TYPE_LRU_HASH);
