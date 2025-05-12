@@ -191,7 +191,9 @@ jobs:
           tunnel: ${{ matrix.tunnel }}
           devices: ${{ matrix.devices }}
           endpoint-routes: ${{ matrix.endpoint-routes }}
+          ipv4: ${{ matrix.ipv4 }}
           ipv6: ${{ matrix.ipv6 }}
+          underlay: ${{ matrix.underlay }}
           kpr: ${{ matrix.kpr }}
           lb-mode: ${{ matrix.lb-mode }}
           lb-acceleration: ${{ matrix.lb-acceleration }}
