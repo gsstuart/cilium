@@ -225,7 +225,6 @@ spec:
           - name: envoy-config
             mountPath: /var/run/cilium/envoy/
             readOnly: true
-
           {{- with .Values.preflight.resources }}
           resources:
             {{- toYaml . | trim | nindent 12 }}
