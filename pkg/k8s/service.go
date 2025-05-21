@@ -4,6 +4,7 @@
 package k8s
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"maps"
@@ -20,21 +21,23 @@ import (
 	"github.com/cilium/cilium/pkg/defaults"
 	"github.com/cilium/cilium/pkg/ip"
 	slim_corev1 "github.com/cilium/cilium/pkg/k8s/slim/k8s/api/core/v1"
+	"github.com/cilium/cilium/pkg/k8s/slim/k8s/apis/labels"
 	"github.com/cilium/cilium/pkg/k8s/utils"
 	"github.com/cilium/cilium/pkg/loadbalancer"
 	"github.com/cilium/cilium/pkg/logging/logfields"
+	"github.com/cilium/cilium/pkg/node"
 	"github.com/cilium/cilium/pkg/option"
 )
 
-func getAnnotationServiceForwardingMode(svc *slim_corev1.Service) (loadbalancer.SVCForwardingMode, error) {
+func getAnnotationServiceForwardingMode(cfg loadbalancer.Config, svc *slim_corev1.Service) (loadbalancer.SVCForwardingMode, error) {
 	if value, ok := annotation.Get(svc, annotation.ServiceForwardingMode); ok {
 		val := loadbalancer.ToSVCForwardingMode(strings.ToLower(value))
 		if val != loadbalancer.SVCForwardingModeUndef {
 			return val, nil
 		}
-		return loadbalancer.ToSVCForwardingMode(option.Config.NodePortMode), fmt.Errorf("Value %q is not supported for %q", val, annotation.ServiceForwardingMode)
+		return loadbalancer.ToSVCForwardingMode(cfg.LBMode), fmt.Errorf("Value %q is not supported for %q", val, annotation.ServiceForwardingMode)
 	}
-	return loadbalancer.ToSVCForwardingMode(option.Config.NodePortMode), nil
+	return loadbalancer.ToSVCForwardingMode(cfg.LBMode), nil
 }
 
 func getAnnotationServiceLoadBalancingAlgorithm(cfg loadbalancer.Config, svc *slim_corev1.Service) (loadbalancer.SVCLoadBalancingAlgorithm, error) {
@@ -254,11 +257,11 @@ func ParseService(logger *slog.Logger, cfg loadbalancer.Config, svc *slim_corev1
 	svcInfo.ServiceAffinity = annotation.GetAnnotationServiceAffinity(svc)
 	svcInfo.Shared = annotation.GetAnnotationShared(svc)
 
-	svcInfo.ForwardingMode = loadbalancer.ToSVCForwardingMode(option.Config.NodePortMode)
+	svcInfo.ForwardingMode = loadbalancer.ToSVCForwardingMode(cfg.LBMode)
 	if cfg.AlgorithmAnnotation {
 		var err error
 
-		svcInfo.ForwardingMode, err = getAnnotationServiceForwardingMode(svc)
+		svcInfo.ForwardingMode, err = getAnnotationServiceForwardingMode(cfg, svc)
 		if err != nil {
 			scopedLog.Warn(
 				"Ignoring annotation, applying global configuration",
@@ -799,4 +802,41 @@ func (s *Service) EqualsClusterService(svc *serviceStore.ClusterService) bool {
 		return true
 	}
 	return false
+}
+
+// CheckServiceNodeExposure returns true if the service should be installed onto the
+// local node, and false if the node should ignore and not install the service.
+func CheckServiceNodeExposure(localNodeStore *node.LocalNodeStore, annotations map[string]string) (bool, error) {
+	if serviceAnnotationValue, serviceAnnotationExists := annotations[annotation.ServiceNodeSelectorExposure]; serviceAnnotationExists {
+		ln, err := localNodeStore.Get(context.Background())
+		if err != nil {
+			return false, fmt.Errorf("failed to retrieve local node: %w", err)
+		}
+
+		selector, err := labels.Parse(serviceAnnotationValue)
+		if err != nil {
+			return false, fmt.Errorf("failed to parse node label annotation: %w", err)
+		}
+
+		if selector.Matches(labels.Set(ln.Labels)) {
+			return true, nil
+		}
+
+		// prioritize any existing node-selector annotation - and return in any case
+		return false, nil
+	}
+
+	if serviceAnnotationValue, serviceAnnotationExists := annotations[annotation.ServiceNodeExposure]; serviceAnnotationExists {
+		ln, err := localNodeStore.Get(context.Background())
+		if err != nil {
+			return false, fmt.Errorf("failed to retrieve local node: %w", err)
+		}
+
+		nodeLabelValue, nodeLabelExists := ln.Labels[annotation.ServiceNodeExposure]
+		if !nodeLabelExists || nodeLabelValue != serviceAnnotationValue {
+			return false, nil
+		}
+	}
+
+	return true, nil
 }

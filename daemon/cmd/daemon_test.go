@@ -202,8 +202,8 @@ func (ds *DaemonSuite) setupConfigOptions() {
 	// run.
 	mockCmd := &cobra.Command{}
 	ds.hive.RegisterFlags(mockCmd.Flags())
-	InitGlobalFlags(mockCmd, ds.hive.Viper())
-	option.Config.Populate(ds.hive.Viper())
+	InitGlobalFlags(ds.log, mockCmd, ds.hive.Viper())
+	option.Config.Populate(ds.log, ds.hive.Viper())
 	option.Config.IdentityAllocationMode = option.IdentityAllocationModeKVstore
 	option.Config.DryMode = true
 	option.Config.Opts = option.NewIntOptions(&option.DaemonMutableOptionLibrary)

@@ -135,11 +135,12 @@ func (cpt *ControlPlaneTest) StartAgent(modConfig func(*agentOption.DaemonConfig
 
 	mockCmd := &cobra.Command{}
 	cpt.agentHandle.hive.RegisterFlags(mockCmd.Flags())
-	agentCmd.InitGlobalFlags(mockCmd, cpt.agentHandle.hive.Viper())
+	agentCmd.InitGlobalFlags(cpt.logger, mockCmd, cpt.agentHandle.hive.Viper())
+
+	cpt.agentHandle.log = hivetest.Logger(cpt.t)
 
 	cpt.agentHandle.populateCiliumAgentOptions(cpt.tempDir, modConfig)
 
-	cpt.agentHandle.log = hivetest.Logger(cpt.t)
 	daemon, err := cpt.agentHandle.startCiliumAgent()
 	if err != nil {
 		cpt.t.Fatalf("Failed to start cilium agent: %s", err)

@@ -55,6 +55,10 @@ type Service struct {
 	// If set to "Local", only node-local backends are chosen.
 	IntTrafficPolicy SVCTrafficPolicy
 
+	// ForwardingMode controls whether DSR or SNAT should be used for the dispatch
+	// to the backend. If undefined the default mode is used (--bpf-lb-mode).
+	ForwardingMode SVCForwardingMode
+
 	SessionAffinity        bool
 	SessionAffinityTimeout time.Duration
 
@@ -101,6 +105,25 @@ const (
 
 func (svc *Service) GetLBAlgorithmAnnotation() SVCLoadBalancingAlgorithm {
 	return ToSVCLoadBalancingAlgorithm(svc.Annotations[annotation.ServiceLoadBalancingAlgorithm])
+}
+
+func (svc *Service) GetProxyDelegation() SVCProxyDelegation {
+	if value, ok := annotation.Get(svc, annotation.ServiceProxyDelegation); ok {
+		tmp := SVCProxyDelegation(strings.ToLower(value))
+		if tmp == SVCProxyDelegationDelegateIfLocal {
+			return tmp
+		}
+	}
+	return SVCProxyDelegationNone
+}
+
+func (svc *Service) GetSourceRangesPolicy() SVCSourceRangesPolicy {
+	if value, ok := annotation.Get(svc, annotation.ServiceSourceRangesPolicy); ok {
+		if SVCSourceRangesPolicy(strings.ToLower(value)) == SVCSourceRangesPolicyDeny {
+			return SVCSourceRangesPolicyDeny
+		}
+	}
+	return SVCSourceRangesPolicyAllow
 }
 
 func (svc *Service) GetAnnotations() map[string]string {
@@ -185,6 +208,10 @@ func (svc *Service) TableRow() []string {
 		flags = append(flags, "SourceRanges="+strings.Join(ss, ", "))
 	}
 
+	if p := svc.GetSourceRangesPolicy(); p == SVCSourceRangesPolicyDeny {
+		flags = append(flags, "SourceRangesPolicy=deny")
+	}
+
 	if svc.ProxyRedirect != nil {
 		flags = append(flags, "ProxyRedirect="+svc.ProxyRedirect.String())
 	}
@@ -199,6 +226,10 @@ func (svc *Service) TableRow() []string {
 
 	if alg := svc.GetLBAlgorithmAnnotation(); alg != SVCLoadBalancingAlgorithmUndef {
 		flags = append(flags, "ExplicitLBAlgorithm="+alg.String())
+	}
+
+	if svc.ForwardingMode != SVCForwardingModeUndef {
+		flags = append(flags, "ForwardingMode="+string(svc.ForwardingMode))
 	}
 
 	if svc.Properties.Len() != 0 {

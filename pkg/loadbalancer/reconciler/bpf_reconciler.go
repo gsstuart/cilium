@@ -688,6 +688,17 @@ func (ops *BPFOps) updateFrontend(fe *loadbalancer.Frontend) error {
 	// the operations that depend on the state have been performed. If this invariant is not
 	// followed then we may leak data due to not retrying a failed operation.
 
+	svc := fe.Service
+	proxyDelegation := svc.GetProxyDelegation()
+
+	// Check for invalid feature combinations to catch bugs at the upper layers.
+	switch {
+	case svc.SessionAffinity && svc.ProxyRedirect != nil:
+		return fmt.Errorf("invalid feature combination: SessionAffinity with proxy redirection is not supported")
+	case svc.LoopbackHostPort && proxyDelegation != loadbalancer.SVCProxyDelegationNone:
+		return fmt.Errorf("invalid feature combination: HostPort loopback with proxy delegation is not supported ")
+	}
+
 	// Assign/lookup an identifier for the service. May fail if we have run out of IDs.
 	// The Frontend.ID field is purely for debugging purposes.
 	feID, err := ops.serviceIDAlloc.acquireLocalID(fe.Address, 0)
@@ -721,17 +732,24 @@ func (ops *BPFOps) updateFrontend(fe *loadbalancer.Frontend) error {
 	// isRoutable denotes whether this service can be accessed from outside the cluster.
 	isRoutable := !svcKey.IsSurrogate() &&
 		(svcType != loadbalancer.SVCTypeClusterIP || ops.cfg.ExternalClusterIP)
-	svc := fe.Service
+
+	forwardingMode := loadbalancer.ToSVCForwardingMode(ops.cfg.LBMode)
+	if ops.cfg.LBModeAnnotation && svc.ForwardingMode != loadbalancer.SVCForwardingModeUndef {
+		forwardingMode = svc.ForwardingMode
+	}
+
 	flag := loadbalancer.NewSvcFlag(&loadbalancer.SvcFlagParam{
 		SvcType:          svcType,
 		SvcNatPolicy:     svc.NatPolicy,
+		SvcFwdModeDSR:    forwardingMode == loadbalancer.SVCForwardingModeDSR,
 		SvcExtLocal:      svc.ExtTrafficPolicy == loadbalancer.SVCTrafficPolicyLocal,
 		SvcIntLocal:      svc.IntTrafficPolicy == loadbalancer.SVCTrafficPolicyLocal,
 		SessionAffinity:  svc.SessionAffinity,
 		IsRoutable:       isRoutable,
+		SourceRangeDeny:  svc.GetSourceRangesPolicy() == loadbalancer.SVCSourceRangesPolicyDeny,
 		CheckSourceRange: len(svc.SourceRanges) > 0,
 		L7LoadBalancer:   svc.ProxyRedirect.Redirects(fe.ServicePort),
-		LoopbackHostport: svc.LoopbackHostPort,
+		LoopbackHostport: svc.LoopbackHostPort || proxyDelegation != loadbalancer.SVCProxyDelegationNone,
 		Quarantined:      false,
 	})
 	svcVal.SetFlags(flag.UInt16())
