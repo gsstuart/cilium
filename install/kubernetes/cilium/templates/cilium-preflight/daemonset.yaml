@@ -184,13 +184,6 @@ spec:
           {{- end }}
           terminationMessagePolicy: FallbackToLogsOnError
         {{- end }}
-
-#
-#
-#
-
-
-        # start envoy container
         {{- if $envoyDS }}
         - name: cilium-pre-flight-envoy
           image: {{ include "cilium.image" .Values.envoy.image | quote }}
@@ -243,10 +236,6 @@ spec:
           {{- end }}
           terminationMessagePolicy: FallbackToLogsOnError
         {{- end }}
-        # end envoy container
-
-      # end containers
-
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       restartPolicy: Always
@@ -292,7 +281,6 @@ spec:
           optional: true
       {{- end }}
       {{- end }}
-
       {{- if $envoyDS }}
       - name: envoy-sockets
         hostPath:
@@ -310,8 +298,7 @@ spec:
           items:
             - key: bootstrap-config.json
               path: bootstrap-config.json
-      {{- end }}  # if envoy
-
+      {{- end }}
       {{- with .Values.preflight.extraVolumes }}
       {{- toYaml . | nindent 6 }}
       {{- end }}
