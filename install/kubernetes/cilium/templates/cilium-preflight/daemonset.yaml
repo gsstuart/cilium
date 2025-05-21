@@ -1,4 +1,4 @@
-{{- $envoyDS := eq (include "envoyDaemonSetEnabled" .) "true" -}} 
+{{- $envoyDS := eq (include "envoyDaemonSetEnabled" .) "true" -}}
 
 {{- if .Values.preflight.enabled }}
 apiVersion: apps/v1
